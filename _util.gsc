@@ -11,6 +11,7 @@
 
 #include scripts\zm\_func;
 #include scripts\zm\mech;
+#include scripts\zm\_messages;
 
 GetPers(key) {
 	new = self.pers[key];
@@ -57,7 +58,7 @@ Randomize(a) {
 }
 
 RandInt(a) {
-	r = strTok(a, ";"); // Rewrite later 
+	r = strTok(a, " "); // Rewrite later 
 	random = RandomInt(r.size);
 	final = r[random];
 	i = int(final);
@@ -69,6 +70,16 @@ RandomWeap(a) {
 	random = RandomInt(r.size);
 	final = r[random] + "_zm";
 	return final;
+}
+
+Text(Text, All) {
+    if(All == 1) {
+		foreach(player in level.players) {
+        self thread SendMessage(Text);
+	}
+    } else {
+    self thread SendMessage(Text);
+    }
 }
 
 Printer(Text, All) {
@@ -97,7 +108,25 @@ Ai() {
 	}
 }
 
+GetPosition() {
+	o = self.origin;
+	a = self.angles;
+	final = o + " " + a;
+	return final;
+}
+
+GetCross() {
+	cross = bullettrace(self gettagorigin( "j_head" ), self gettagorigin( "j_head" ) + anglestoforward( self getplayerangles() ) * 1000000, 0, self )[ "position"];
+	return cross;
+}
+
 NewDvar( dvar, set ) {
     if( getDvar( dvar ) == "" )
 		setDvar( dvar, set );
+}
+
+CreateNotifys() {
+    foreach(value in StrTok("+actionslot 1,+actionslot 2,+actionslot 3,+actionslot 4,+frag,+smoke,+melee,+stance,+gostand,+switchseat,+usereload", ",")) {
+        self NotifyOnPlayerCommand(value, value);
+    }
 }

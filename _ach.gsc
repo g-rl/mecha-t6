@@ -35,8 +35,8 @@ CheckAch(key, value) {
 InitAch() {
 	for(;;) {
 		// KILL CHECKS
-		if(CheckAch("kills", 1)) self thread Kills(1);
-		if(CheckAch("kills", 2)) self thread Kills(2);
+		//if(CheckAch("kills", 1)) self thread Kills(1);
+		//if(CheckAch("kills", 2)) self thread Kills(2);
 		// DEATH CHECKS
 
 		// BOX CHECKS

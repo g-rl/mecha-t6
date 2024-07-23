@@ -202,7 +202,7 @@ SpawnTheWeapon(location, weapon, weaponmodel, angle)
 						player switchToWeapon( weapon );
 						player giveMaxAmmo( weapon );
 						player.pers["got_weapon"] = true;
-						player notify("discovery");
+						player notify("first_weapon");
 						//print("5");
 						wait 0.5;
 				}
@@ -251,6 +251,46 @@ onPlayerRevived() {
 	}
 }
 
+GetFoot()
+{
+    foot = int( self.pers["distance_traveled"] / 12000 );
+    remainder = self.pers["distance_traveled"] / 12000 - foot;
+
+    if ( foot < 1 && remainder < 0.5 )
+        foot = 0;
+    else if ( remainder >= 0.5 )
+        foot++;
+
+    return foot;
+}
+
+GetDistance(dist)
+{
+	distint = int(dist);
+    distance = int( self.pers["distance_traveled"] / distint );
+    remainder = self.pers["distance_traveled"] / distint - distance;
+
+    if ( distance < 1 && remainder < 0.5 )
+        distance = 0;
+    else if ( remainder >= 0.5 )
+        distance++;
+
+    return distance;
+}
+
+GetYards()
+{
+    yards = int( self.pers["distance_traveled"] / 36000 );
+    remainder = self.pers["distance_traveled"] / 36000 - yards;
+
+    if ( yards < 1 && remainder < 0.5 )
+        yards = 0;
+    else if ( remainder >= 0.5 )
+        yards++;
+
+    return yards;
+}
+
 GetMiles()
 {
     miles = int( self.pers["distance_traveled"] / 63360 );
@@ -268,7 +308,7 @@ MonitorDistance() {
 	self endon("disconnect");
 	for(;;) {
 		level waittill("end_of_round");
-		self thread SendMessage(GetMiles() + " Miles Ran");
+		self thread SendMessage("Ran " + GetFoot() + "ft");
 		wait 0.25;
 	}
 }
@@ -353,7 +393,7 @@ PermaPerks()
 
 SpawnPoints()
 {
-	spawn_num = randomintrange( 1, 5 ) * 100;
+	spawn_num = randomfloatrange( 1.25, 5 ) * 100;
 	self.score = spawn_num;
 }
 
@@ -1598,7 +1638,6 @@ disable_player_move_states_override( forcestancechange ) //checked matches cerbe
 	}
 }
 
-
 add_to_player_score_override( points, add_to_total ) //checked matches cerberus output
 {
 	if ( !isDefined( add_to_total ) )
@@ -1647,7 +1686,6 @@ free_perk_powerup_override( item ) //checked changed to match cerberus output
 		level.perk_purchase_limit++;
 	}
 }
-
 
 nuke_powerup_override( drop_item, player_team ) //checked changed to match cerberus output
 {
@@ -5626,8 +5664,7 @@ RapidFire()
 }
 
 
-jugg_perks()
-{
+JuggPerks() {
 	self endon( "disconnect" );
 
 	for ( ;; )
@@ -5640,9 +5677,7 @@ jugg_perks()
 			self SetPerk("specialty_explosivedamage");
 			self Setperk("specialty_bulletdamage");
 			self SetPerk("specialty_armorpiercing");
-
-			self SetNormalHealth(200);
-			self SetmaxHealth(200);
+			self.pers["jugg"] = true;
 		}
 		else
 		{
@@ -5652,6 +5687,7 @@ jugg_perks()
 			self UnsetPerk("specialty_explosivedamage");
 			self UnsetPerk("specialty_bulletdamage");
 			self UnsetPerk("specialty_armorpiercing");
+			self.pers["jugg"] = undefined;
 	
 
 		}
@@ -5688,8 +5724,8 @@ staminup_perks()
 		}
 	}
 }
-speed_perks()
-{
+
+SpeedPerks() {
 	self endon( "disconnect" );
 
 	for ( ;; )
@@ -5701,6 +5737,7 @@ speed_perks()
 			self SetPerk("specialty_fastads");
 			self SetPerk("specialty_fastweaponswitch");
 			self Setperk("specialty_fasttoss");
+			self.pers["speed_cola"] = true;
 			
 		}
 		else
@@ -5708,6 +5745,7 @@ speed_perks()
 			self UnsetPerk("specialty_fastads");
 			self UnsetPerk("specialty_fastweaponswitch");
 			self Unsetperk("specialty_fasttoss");
+			self.pers["speed_cola"] = false;
 		}
 	}
 }
@@ -7256,19 +7294,19 @@ DiscoveryWatcher() {
 		switch(self.discoveries)
 		{
 			case 25:
-				CalculateScore(5000);
+				self CalculateScore(5000);
 				break;
 			case 50:
-				CalculateScore(5000);
+				self CalculateScore(5000);
 				break;
 			case 75:
-				CalculateScore(5000);
+				self CalculateScore(5000);
 				break;
 			case 100:
-				CalculateScore(10000);	
+				self CalculateScore(10000);	
 				break;
 			default:
-				CalculateScore();
+				self CalculateScore();
 				break;
 		}	
 		wait 1;
@@ -7308,17 +7346,21 @@ CalculateScore(a) {
 	//print("score: " + score);
 }
 
-DiscoveryCounter(shader) {
-	self endon("disconnect");
-	self thread DiscoveryWatcher();
-	self thread CreateDiscoveryNotify();
+HideMyself(time) {
+	self Hide();
+	wait (time);
+	self Show();
+}
+
+SetupDiscoveries() {
+	self thread Discovery("custom_powerup", "self");
+	self thread Discovery("first_weapon", "self");
 	self thread Discovery("chest_accessed", "self");
 	self thread Discovery("box_locked", "level");
 	self thread Discovery("perk_acquired", "self", 2);
 	self thread Discovery("powerup instakill_" + self.team, "level");
 	self thread Discovery("powerup points scaled_" + self.team, "level");
 	self thread Discovery("zmb_max_ammo", "self");
-	self thread Discovery("zmb_lost_knife", "self");
 	self thread Discovery("pap_built", "level");
 	self thread Discovery("end_of_round", "level");
 	self thread Discovery("weapon_grabbed", "self");
@@ -7357,7 +7399,15 @@ DiscoveryCounter(shader) {
 	self thread Discovery("equip_springpad_zm_taken", "self");
 	self thread Discovery("equip_headchopper_zm_taken", "self");
 	self thread Discovery("equip_turbine_zm_taken", "self");
+}
 
+DiscoveryCounter(shader) {
+	self endon("disconnect");
+	self thread DiscoveryWatcher();
+	self thread CreateDiscoveryNotify();
+	self thread CreateDiscoveryRewards();
+	self thread CreateOtherNotify();
+	self thread SetupDiscoveries();
 	discovery = newclienthudelem(self);
 	discovery.alignx = "left";
 	discovery.aligny = "middle";
@@ -7425,7 +7475,7 @@ DiscoveryCounter(shader) {
 
 BoxCounter() {
 	self endon("disconnect");
-	self.chesthits = 0;
+	self.pers["chesthits"] = 0;
 	x = 10;
 	y = -33;
 	box = newclienthudelem(self);
@@ -7446,10 +7496,32 @@ BoxCounter() {
 	flag_wait( "initial_blackscreen_passed" );
 
 	while (1) {
-    box settext("^2Box Hits^7: " + self.chesthits);
+    box settext("^2Box Hits^7: " + self.pers["chesthits"]);
 	box.alpha = 1;
 	wait 2;
 	continue;		
+	}
+}
+
+CreateDiscoveryRewards() {
+	for(;;)
+	{
+		self waittill_any("discovery", "first_weapon", "custom_powerup", "supply_drop");
+		switch(self.discoveries)
+		{
+			case 50:
+				self thread ExoSuits();
+				break;
+		}	
+		wait 1;
+	}
+}
+
+CreateOtherNotify() {
+	for(;;) {
+		self waittill_any("custom_powerup", "first_weapon", "supply_drop");
+		self.discoveries += 1;
+		Waiting();
 	}
 }
 
@@ -7468,15 +7540,26 @@ CreateDiscoveryNotify() {
 Discovery(disc, type, amnt) {
 	self.discoveries = 0;
 	for(;;) {
+
+		if(disc == "custom_powerup") {
+			notifier = "custom_powerup";
+		} else if(disc == "first_weapon") {
+			notifier = "first_weapon";
+		} else {
+			notifier = "discovery";
+		}
+		
 		if(type == "self") {
 			self waittill( disc );
 		} else if(type == "level") {
 			level waittill( disc );
 		}
 		if(isDefined(amnt)){
-			self notify("discovery", amnt);
+			self notify(notifier, amnt);
+			print(self.user + ": ^3" + disc + "/" + type + "/" + amnt);
 		} else {
-			self notify("discovery");
+			self notify(notifier);
+			print(self.user + ": ^3" + disc + "/" + type);
 		}
 		Waiting();
 	}
@@ -8098,4 +8181,182 @@ PerkPoints()
 			level thread TriggerPerks(-2381,-8,234); //staminup
 		}
 	}
+}
+
+ReloadMonitor() {
+	self endon("disconnect");
+	for(;;) {
+		if(self useButtonPressed())
+		{
+		Waiting();
+		if(!self IsReloading()) continue; // dont know if this will work, same as jump check though
+		self.pers["reloads"] += 1;
+		self Printer(GetPers("reloads"));
+		}
+		wait 1;
+	}
+}
+
+JumpMonitor() {
+	self endon("disconnect");
+	for(;;) {
+		self waittill("+gostand");
+		Waiting(); // give chance to register jump
+		if(self IsOnGround()) continue;
+		if(isDefined(jumping)) continue;
+		jumping = true;
+		self.pers["jumps"] += 1;
+		//self Printer(GetPers("jumps"));
+		Waiting(0.5);
+		jumping = undefined;
+	}
+}
+
+Reminders() {
+	self endon("disconnect");
+	self endon("stopalooping");
+
+	_=[];
+	_[0]="You ran ^3" + GetFoot() + "^7ft so far";
+	_[1]="You died ^3" + GetPers("deaths") + "^7 times this game";
+	//_[2]="You've reloaded ^3" + GetPers("reloads") + "^7 times this game";
+	_[2]="You've jumped ^3" + GetPers("jumps") + "^7 times this game";
+
+	for(;;)
+	{
+        time = randomintrange(45,60);
+		wait(time);
+		self iprintln(_[randomint(_.size)]);
+	}
+}
+
+Debugging(god, pts) {
+	if(!isDefined(level.debugged)) return;
+	if(isDefined(pts)) self.score = pts;
+	if(!isDefined(pts)) self.score = 200000;
+	if(god == 1) self enableInvulnerability();
+}
+
+ExoSuits() {
+	self endon("disconnect");
+	level endon("end_game");
+	self endon("stop_exo");
+	self.sprint_boost = 0;
+	self.jump_boost = 0;
+	self.slam_boost = 0;
+	self.exo_boost = 100;
+	self thread SendMessage(self.user + " found Exo Suits!", 1);
+	self thread MonitorBoost();
+	while(1)
+	{
+		if( !self IsOnGround() )
+		{
+			if(self JumpButtonPressed() || self SprintButtonPressed())
+			{
+				wait_network_frame();
+				continue;
+			}
+			self.sprint_boost = 0;
+			self.jump_boost = 0;
+			self.slam_boost = 0;
+			while( !self IsOnGround() )
+			{
+				if( self JumpButtonPressed() && self.jump_boost < 1 && self.exo_boost >= 20 )
+				{
+					self.is_flying_jetpack = true;
+					self.jump_boost++;
+					angles = self getplayerangles();
+					angles = (0,angles[1],0);
+					
+					self.loop_value = 2;
+					
+					if( IsDefined(self.loop_value))
+					{
+						Earthquake( 0.22, .9, self.origin, 850 );
+						direction = AnglesToUp(angles) * 500;
+						self thread land();
+						for(l = 0; l < self.loop_value; l++)
+						{
+							self SetVelocity( (self GetVelocity()[0], self GetVelocity()[1], 0) + direction );
+							wait_network_frame();
+						}
+					}
+					self.exo_boost -= 20;
+					self thread MonitorBoost();
+				}
+				if( self SprintButtonPressed() && self.sprint_boost < 1 && self.exo_boost >= 20 )
+				{
+					self.is_flying_jetpack = true;
+					self.sprint_boost++;
+					xvelo = self GetVelocity()[0];
+					yvelo = self GetVelocity()[1];
+					l = Length((xvelo, yvelo, 0));
+					if(l < 10)
+						continue;
+					if(l < 190)
+					{
+						xvelo = int(xvelo * 190/l);
+						yvelo = int(yvelo * 190/l);
+					}
+
+					Earthquake( 0.22, .9, self.origin, 850 );
+					if(self.jump_boost == 1)
+						boostAmount = 2.25;
+					else
+						boostAmount = 3;
+					self thread land();
+					self SetVelocity( (xvelo * boostAmount, yvelo * boostAmount, self GetVelocity()[2]) );
+					self.exo_boost -= 20;
+					self thread MonitorBoost();
+					while( !self isOnGround() )
+						wait .05;
+				}
+				if( self StanceButtonPressed() && self.jump_boost > 0 && self.slam_boost < 1 && self HasPerk("specialty_rof") && self.exo_boost >= 30)
+				{
+					self.slam_boost++;
+					self SetVelocity((self GetVelocity()[0], self GetVelocity()[1], -200));
+					self thread land();
+					self.exo_boost -= 30;
+					self thread MonitorBoost();
+				}
+				wait_network_frame();
+			}
+			if(self.slam_boost > 0)
+			{
+				self EnableInvulnerability();
+				RadiusDamage( self.origin, 200, 3000, 500, self, "MOD_GRENADE_SPLASH" );
+				self DisableInvulnerability();
+				self PlaySound( "zmb_phdflop_explo" );
+				fx = loadfx("explosions/fx_default_explosion");
+				playfx( fx, self.origin );
+			}
+		}
+		wait_network_frame();
+	}
+}
+
+MonitorBoost() {
+	self endon("disconnect");
+	self notify("boostMonitor");
+	self endon("boostMonitor");
+	while(1)
+	{
+		while(self.exo_boost >= 100)
+		{
+			wait_network_frame();
+		}
+		wait 3;
+		while(self.exo_boost < 100)
+		{
+			self.exo_boost += 5;
+			wait 0.25;
+		}
+	}
+}
+
+Land() {
+	self endon("disconnect");
+	while( !self IsOnGround() )
+		wait_network_frame();
+	self.is_flying_jetpack = false;
 }

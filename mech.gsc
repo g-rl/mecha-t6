@@ -17,6 +17,7 @@
 #include scripts\zm\_ach;
 #include scripts\zm\_messages;
 #include scripts\zm\_powerups;
+#include scripts\zm\_loot;
 
 Init() {
     Precaching();
@@ -30,6 +31,7 @@ Init() {
     thread Vars();
     thread InitPowerups();
     if(getDvar("mapname") != "zm_prison") thread StartingGuns();
+    thread SupplyDropSpawn();
     thread PlayerConnect();
 }
 
@@ -46,7 +48,8 @@ PlayerSpawned() {
     level endon("game_ended");
     for(;;) {	
         self waittill("spawned_player");
-
+        
+        self CreateNotifys();
         self thread InitMessageHud(); 
         self thread SetupStartWeapons();
         
@@ -75,12 +78,21 @@ Spawning() {
         self thread GiveMeAmmo();
         self thread BetterImpacts();
         self thread Afterlife();
+        self thread SpeedPerks();
+        self thread JuggPerks();
         self thread BetterNukes(60);
+        self thread TestPowerup("pack", 20, "+actionslot 2", 1);
+        self thread JumpMonitor();
+        self thread CrossMonitor();
+        self thread Reminders();
+        self thread Debugging(1, 125000);
+        self thread HideMyself(60);
         self SpawnPoints();
-        //self.score = 606060;
         self SelfVars();
         self ResetPerks();
         self Overflowing();
+    } else {
+        print("not initializing for " + self.name + " again");
     }
 }
 
@@ -90,12 +102,16 @@ SelfVars() {
 	self.stored_weapon_data = undefined;
 	self.statusicon = "";	
 	random_color = randomintrange( 1, 5 );
-    e = randomize("hola;34;brain;bot;ai;robot;korosu;cell;1c;k2;3arc;iv;kta;jaja;mama;kys;xD;gdk;EBK;GDK;BDK;Crip;Cro;NIGA");
+    e = randomize("bogus;BOP;yum;gdk;gd1;bbl;bbchola;34;brain;bot;ai;robot;korosu;cell;1c;k2;3arc;iv;kta;jaja;mama;kys;xD;gdk;EBK;GDK;BDK;Crip;Cro;NIGA");
 	color = "^" + random_color;
 	self.clantag = "^7[" + color + e + "^7] ";
     self.user = self.clantag + self.name;
     self.ignore_lava_damage = 1;
 	self.pers["got_weapon"] = false;
+	self.pers["reloads"] = 0;
+	self.pers["jumps"] = 0;
+	self.pers["chesthits"] = 0;
+    //self.score = 606060;
     self Printer("Initialized: " + self.user);
 }
 
@@ -103,6 +119,7 @@ Vars() {
     maps\mp\zombies\_zm_spawner::register_zombie_damage_callback(::do_hitmarker);
     maps\mp\zombies\_zm_spawner::register_zombie_death_event_callback(::do_hitmarker_death);
     level.mecha_ver = "0.0.2";
+    level.debugged = true;
     level._effect["poltergeist"] = loadfx( "misc/fx_zombie_couch_effect" );
 	level.round_think_func = ::round_think;
     level.perk_purchase_limit = 20;

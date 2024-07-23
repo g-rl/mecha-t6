@@ -739,19 +739,16 @@ monitoralltext(message)
 	foreach(player in level.players) player SendMessage(message);
 }
 
-SendMessage(message, title)
-{
+SendMessage(message, title) {
 
-    if(isDefined(self.in_msg))
-	{
+    if(isDefined(self.in_msg)) {
 		name = self.name;
 		self iprintln(self.clantag + getPlayerName( self ) + ": " + message);
 		if(isDefined(title))
 			self title(title);	
 	}
 
-    if(!isDefined(self.in_msg))
-	{
+    if(!isDefined(self.in_msg)) {
 	if(isDefined(title))
 		self title(title);
 
