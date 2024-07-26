@@ -24,7 +24,6 @@
 CheckAch(key, value) {
 	new = self.pers[key];
 	real = GetPers(new+value);
-
 	if(GetPers(key) == value && GetPers(key+value) != true) {
 		return true;
 	} else {
@@ -33,7 +32,11 @@ CheckAch(key, value) {
 }
 
 InitAch() {
+	self endon("disconnect");
+	level endon("game_ended");
+
 	for(;;) {
+
 		// KILL CHECKS
 		//if(CheckAch("kills", 1)) self thread Kills(1);
 		//if(CheckAch("kills", 2)) self thread Kills(2);
@@ -57,7 +60,6 @@ InitAch() {
 
 		// BLEEDOUT CHECKS
 
-		
 		Waiting(1);
 	}
 }

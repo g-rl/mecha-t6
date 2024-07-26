@@ -83,7 +83,7 @@ CustomPowerupFunc(powerup, u) {
 			level thread Powerup("pack", ::UpgradeTheWeapon, u, u);
 			break;
 		default:
-			level thread Powerup("perks", ::DoPerks, u, u);
+			level thread Powerup("points", ::PointsToPlayer, u, u);
 			break;
 	}
 }
@@ -111,7 +111,13 @@ DoAmmo(u) {
     stock = u getWeaponAmmoStock(weap);
 	stock_min = stock / 2; // get a realistic amount
     amnt = randomintrange(stock_min,stock);
+	
+	if(weap == "m1911_upgraded_zm") {
+		points = randomintrange( 1, 12 ) * 100;
+		u.score += points;
+	} else {
 	u setWeaponAmmoStock( weap, stock+amnt );
+	}
 }
 
 PointsToPlayer(u) {

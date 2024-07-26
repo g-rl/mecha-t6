@@ -20,19 +20,24 @@
 #include scripts\zm\_loot;
 
 Init() {
+    
+    level.debugged = true;
+
     Precaching();
     Dvars();
     PerkPoints();
-    thread PapTriggers();
-    thread TransitPower();
-	thread RoundHud();
-    thread Hitmarkers();
-    thread Overriding();
-    thread Vars();
-    thread InitPowerups();
+    // Can't use "level thread" when initializing anything buildable wise, crashes (⚠)
     if(getDvar("mapname") != "zm_prison") thread StartingGuns();
     thread SupplyDropSpawn();
-    thread PlayerConnect();
+
+    level thread PapTriggers();
+    level thread TransitPower();
+	level thread RoundHud();
+    level thread Hitmarkers();
+    level thread Overriding();
+    level thread Vars();
+    level thread InitPowerups();
+    level thread PlayerConnect();
 }
 
 
@@ -71,6 +76,7 @@ Spawning() {
         self thread BoxCounter();
         self thread DiscoveryCounter("ui_arrow_right");
         self thread KillCounter();
+        self thread KeyTracker();
         self thread MaxRefill();
         self thread DisableQuotes();
         self thread SetTheStats();
@@ -83,9 +89,9 @@ Spawning() {
         self thread BetterNukes(60);
         self thread TestPowerup("pack", 20, "+actionslot 2", 1);
         self thread JumpMonitor();
-        self thread CrossMonitor();
+        self thread EasyCrateSetup();
         self thread Reminders();
-        self thread Debugging(1, 125000);
+        self thread Debugging(1, 125000, 1, 45);
         self thread HideMyself(60);
         self SpawnPoints();
         self SelfVars();
@@ -97,29 +103,27 @@ Spawning() {
 }
 
 SelfVars() {
+	// self.stored_weapon_data = undefined;
     self.FirstSpawn = true;
 	name = self.name;
-	self.stored_weapon_data = undefined;
-	self.statusicon = "";	
+	self.statusicon = "";
+    self.ignore_lava_damage = 1;	
 	random_color = randomintrange( 1, 5 );
-    e = randomize("bogus;BOP;yum;gdk;gd1;bbl;bbchola;34;brain;bot;ai;robot;korosu;cell;1c;k2;3arc;iv;kta;jaja;mama;kys;xD;gdk;EBK;GDK;BDK;Crip;Cro;NIGA");
+    e = randomize("SHXT;jxx;bogus;BOP;yum;gdk;gd1;bbl;bbc;hola;34;brain;bot;ai;robot;korosu;cell;1c;k2;3arc;iv;kta;jaja;mama;kys;xD;gdk;EBK;GDK;BDK;Crip;Cro;NIGA");
 	color = "^" + random_color;
 	self.clantag = "^7[" + color + e + "^7] ";
-    self.user = self.clantag + self.name;
-    self.ignore_lava_damage = 1;
-	self.pers["got_weapon"] = false;
-	self.pers["reloads"] = 0;
-	self.pers["jumps"] = 0;
-	self.pers["chesthits"] = 0;
-    //self.score = 606060;
-    self Printer("Initialized: " + self.user);
+    self SetPersIfUni("user", self.clantag + self.name);
+    self SetPersIfUni("got_weapon", false);
+    self SetPersIfUni("reloads", 0);
+    self SetPersIfUni("jumps", 0);
+    self SetPersIfUni("chesthits", 0);
+    self Printer("Initialized: " + GetPers("user"));
 }
 
 Vars() {
     maps\mp\zombies\_zm_spawner::register_zombie_damage_callback(::do_hitmarker);
     maps\mp\zombies\_zm_spawner::register_zombie_death_event_callback(::do_hitmarker_death);
     level.mecha_ver = "0.0.2";
-    level.debugged = true;
     level._effect["poltergeist"] = loadfx( "misc/fx_zombie_couch_effect" );
 	level.round_think_func = ::round_think;
     level.perk_purchase_limit = 20;
@@ -165,7 +169,7 @@ Vars() {
 
 	level thread ShareBox();
 	level thread OverrideDrops();
-    level thread BoxPrice();
+    level thread CycleBoxPrice();
     level thread WallbuyDynamicRadiusTrigger();
 	wait 0.05;
 	level thread BuildBuildables();
@@ -183,7 +187,7 @@ Precaching() {
 	    setDvar( disabled, "0" );
 	}
 
-	foreach( shaders in strtok( "ui_arrow_right,menu_scroll_arrow,hud_obit_exploding_arrow,ui_scrollbar_arrow_right,menu_mp_cac_caro_gren_hl,menu_mp_array_map_select,menu_mp_star_rating,ui_host,damage_feedback,hud_chalk_1,hud_chalk_2,hud_chalk_3,hud_chalk_4,hud_chalk_5,codtv_info,gradient,white,menu_mp_star_rating,gradient_fadein,scorebar_zom_1,codtv_info", "," ) )
+	foreach( shaders in strtok( "specialty_doublepoints_zombies,waypoint_revive,ui_arrow_right,menu_scroll_arrow,hud_obit_exploding_arrow,ui_scrollbar_arrow_right,menu_mp_cac_caro_gren_hl,menu_mp_array_map_select,menu_mp_star_rating,ui_host,damage_feedback,hud_chalk_1,hud_chalk_2,hud_chalk_3,hud_chalk_4,hud_chalk_5,codtv_info,gradient,white,menu_mp_star_rating,gradient_fadein,scorebar_zom_1,codtv_info", "," ) )
 	{
 	    precacheshader( shaders );
 	}

@@ -13,13 +13,74 @@
 #include scripts\zm\mech;
 #include scripts\zm\_messages;
 
-GetPers(key) {
-	new = self.pers[key];
-	return new;
+PlaceHolder() {
+    self iprintlnbold("broken");
+}
+
+InArray(a, check) {
+	if( IsInArray(a, check))
+        return true;
 }
 
 SetPers(key, value) {
-	self.pers[key] = value;
+    self.pers[key] = value;
+}
+
+GetPers(key) {
+    return self.pers[key];
+}
+
+SetPersIfUni(key, value) {
+    if(!isdefined(self.pers[key])) {
+        self.pers[key] = value;
+    }
+}
+
+SetDvarIfUni(dvar, value) {
+    if(!isdefined(GetDvar(dvar)) || GetDvar(dvar) == "") {
+        SetDvar(dvar, value);
+    }
+}
+
+SetUniqueDvarIfUni(dvar, value) {
+    if(!isdefined(GetUniqueDvar(dvar)) || GetUniqueDvar(dvar) == "") {
+        SetUniqueDvar(dvar, value);
+    }
+}
+
+SetUniqueDvar(dvar, value) {
+        y = GetPlayerName() + "_";
+        SetDvar(y + dvar, value);
+}
+
+GetUniqueDvar(dvar) {
+    y = GetPlayerName() + "_";
+    i = getDvar(y + dvar);
+    return i;
+}
+
+GetUniqueDvarFloat(dvar) {
+    y = GetPlayerName() + "_";
+    i = getDvarFloat(y + dvar);
+    return i;
+}
+
+GetUniqueDvarInt(dvar) {
+    y = GetPlayerName() + "_";
+    i = getDvarInt(y + dvar);
+    return i;
+}
+
+BoolText(bool) {
+    if(bool)
+        return "^2Enabled^7";
+    else
+        return "^1Disabled^7";
+}
+
+List(key) {
+    output = StrTok(key, ",");
+    return output;
 }
 
 Waiting(a) {
@@ -52,6 +113,13 @@ NewArray(array) {
 
 Randomize(a) {
 	r = strTok(a, ";"); // Rewrite later 
+	random = RandomInt(r.size);
+	final = r[random];
+	return final;
+}
+
+Loot(a) {
+	r = strTok(a, " "); // Rewrite later 
 	random = RandomInt(r.size);
 	final = r[random];
 	return final;

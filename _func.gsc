@@ -715,6 +715,7 @@ Overriding()
 	replaceFunc( maps\mp\zombies\_zm_magicbox::treasure_chest_move, ::treasure_chest_move_override );
 	replaceFunc( maps\mp\zombies\_zm_magicbox::treasure_chest_think, ::custom_treasure_chest_think );
 	replaceFunc( maps\mp\zombies\_zm_utility::get_player_weapon_limit, ::get_player_weapon_limit_override );
+    replaceFunc(::give_perk, ::give_perk_override);
 }
 
 wait_network_frame() {
@@ -3658,29 +3659,27 @@ custom_watch_for_lock()
     self thread custom_treasure_chest_think();
 }
 
-
-papping()
-{
-    precachestring(&"ZOMBIE_PERK_PACKAPUNCH");
-    precachestring(&"ZOMBIE_PERK_PACKAPUNCH_ATT");
-    level waittill( "Pack_A_Punch_on" );
-
-    pap_triggers = getentarray( "specialty_weapupgrade", "script_noteworthy" );
-    pap_trigger = pap_triggers[0];
-    pap_trigger.cost = 5000;
-    pap_trigger sethintstring( &"ZOMBIE_PERK_PACKAPUNCH", pap_trigger.cost ); 
-    pap_trigger.attachment_cost = 1750;
-    pap_trigger sethintstring( &"ZOMBIE_PERK_PACKAPUNCH", pap_trigger.attatchment_cost ); 
+CycleBoxPrice() {
+	level endon("game_ended");
+	level thread BoxPrice(750); // init box price before anything 
+	level notify("box_fixed");
+	for(;;) {
+		level waittill("start_of_round");
+		prices = RandInt("600 700 750 775 800 825 850 875 885 900 925 950 1250");
+		level thread BoxPrice(prices);
+		level notify("box_fixed");
+		wait 1;
+	}
 }
 
-
-BoxPrice()
+BoxPrice(price)
 {
+	level endon("box_fixed");
 	i = 0;
     while (i < level.chests.size)
     {
-        level.chests[ i ].zombie_cost = 700;
-        level.chests[ i ].old_cost = 700;
+        level.chests[ i ].zombie_cost = price;
+        level.chests[ i ].old_cost = price;
         i++;
     }
 }
@@ -7494,7 +7493,7 @@ BoxCounter() {
 	box thread DestroyBars();
 
 	flag_wait( "initial_blackscreen_passed" );
-
+ 
 	while (1) {
     box settext("^2Box Hits^7: " + self.pers["chesthits"]);
 	box.alpha = 1;
@@ -7510,7 +7509,9 @@ CreateDiscoveryRewards() {
 		switch(self.discoveries)
 		{
 			case 50:
+				if(!isDefined(self.discovered_exo)) {
 				self thread ExoSuits();
+				}
 				break;
 		}	
 		wait 1;
@@ -7556,10 +7557,10 @@ Discovery(disc, type, amnt) {
 		}
 		if(isDefined(amnt)){
 			self notify(notifier, amnt);
-			print(self.user + ": ^3" + disc + "/" + type + "/" + amnt);
+			print(GetPers("user") + ": ^3" + disc + "/" + type + "/" + amnt);
 		} else {
 			self notify(notifier);
-			print(self.user + ": ^3" + disc + "/" + type);
+			print(GetPers("user") + ": ^3" + disc + "/" + type);
 		}
 		Waiting();
 	}
@@ -7873,8 +7874,7 @@ pap_off()
 	}
 }
 
-UpgradeWeapon(wep)
-{
+UpgradeWeapon(wep) {
     baseweapon = get_base_name(wep);
     weapon = GetUpgrade(baseweapon);
     if (isdefined(weapon))
@@ -7886,13 +7886,11 @@ UpgradeWeapon(wep)
     }
 }
 
-GetUpgrade(weapon)
-{
+GetUpgrade(weapon) {
     if (isdefined(level.zombie_weapons[weapon]) && isdefined(level.zombie_weapons[weapon].upgrade_name))
         return get_upgrade_weapon(weapon, 0);
     return get_upgrade_weapon(weapon, 1);
 }
-
 
 PapTriggers()
 {
@@ -8230,11 +8228,14 @@ Reminders() {
 	}
 }
 
-Debugging(god, pts) {
+Debugging(god, pts, disc, amnt) {
 	if(!isDefined(level.debugged)) return;
 	if(isDefined(pts)) self.score = pts;
 	if(!isDefined(pts)) self.score = 200000;
 	if(god == 1) self enableInvulnerability();
+
+	wait 3;
+	if(disc == 1) self.discoveries = amnt;
 }
 
 ExoSuits() {
@@ -8245,7 +8246,8 @@ ExoSuits() {
 	self.jump_boost = 0;
 	self.slam_boost = 0;
 	self.exo_boost = 100;
-	self thread SendMessage(self.user + " found Exo Suits!", 1);
+	self.discovered_exo = true;
+	self thread monitoralltext("Found Exo Suits!");
 	self thread MonitorBoost();
 	while(1)
 	{
@@ -8359,4 +8361,199 @@ Land() {
 	while( !self IsOnGround() )
 		wait_network_frame();
 	self.is_flying_jetpack = false;
+}
+
+perkHUD(perk)
+{
+	level endon("end_game");
+	self endon( "disconnect" );
+
+
+    switch( perk ) {
+    	case "specialty_armorvest":
+        	shader = "specialty_juggernaut_zombies";
+        	break;
+    	case "specialty_quickrevive":
+        	shader = "specialty_quickrevive_zombies";
+        	break;
+    	case "specialty_fastreload":
+        	shader = "specialty_fastreload_zombies";
+        	break;
+    	case "specialty_rof":
+        	shader = "specialty_doubletap_zombies";
+        	break;  
+    	case "specialty_longersprint":
+        	shader = "specialty_marathon_zombies";
+        	break; 
+    	case "specialty_flakjacket":
+        	shader = "specialty_divetonuke_zombies";
+        	break;  
+    	case "specialty_deadshot":
+        	shader = "specialty_ads_zombies";
+        	break;
+    	case "specialty_additionalprimaryweapon":
+        	shader = "specialty_additionalprimaryweapon_zombies";
+        	break; 
+		case "specialty_scavenger": 
+			shader = "specialty_tombstone_zombies";
+        	break; 
+    	case "specialty_finalstand":
+			shader = "specialty_chugabud_zombies";
+        	break; 
+    	case "specialty_nomotionsensor":
+			shader = "specialty_vulture_zombies";
+        	break; 
+    	case "specialty_grenadepulldeath":
+			shader = "specialty_electric_cherry_zombie";
+        	break; 
+    	default:
+        	shader = "";
+        	break;
+    }
+
+
+	perk_hud = newClientHudElem(self);
+	perk_hud.alignx = "center";
+	perk_hud.aligny = "middle";
+	perk_hud.horzalign = "user_center";
+	perk_hud.vertalign = "user_top";
+	perk_hud.x += 0;
+	perk_hud.y += 120;
+	perk_hud.fontscale = 2;
+	perk_hud.alpha = 1;
+	perk_hud.color = ( 1, 1, 1 );
+	perk_hud.hidewheninmenu = 1;
+	perk_hud.foreground = 1;
+	perk_hud setShader(shader, 128, 128);
+	
+	
+	perk_hud moveOvertime( 0.25 );
+    perk_hud fadeovertime( 0.25 );
+    perk_hud scaleovertime( 0.25, 64, 64);
+    perk_hud.alpha = 1;
+    perk_hud.setscale = 2;
+    wait 3.25;
+    perk_hud moveOvertime( 1 );
+    perk_hud fadeovertime( 1 );
+    perk_hud.alpha = 0;
+    perk_hud.setscale = 5;
+    perk_hud scaleovertime( 1, 128, 128);
+    wait 1;
+    perk_hud notify( "death" );
+
+    if ( isdefined( perk_hud ) )
+        perk_hud destroy();
+}
+
+
+getPerkShader(perk)
+{
+	if(perk == "specialty_armorvest") //Juggernog
+		return "Juggernog";
+	if(perk == "specialty_rof") //Doubletap
+		return "Double Tap";
+	if(perk == "specialty_longersprint") //Stamin Up
+		return "Stamin-Up";
+	if(perk == "specialty_fastreload") //Speedcola
+		return "Speed Cola";
+	if(perk == "specialty_additionalprimaryweapon") //Mule Kick
+		return "Mule Kick";
+	if(perk == "specialty_quickrevive") //Quick Revive
+		return "Quick Revive";
+	if(perk == "specialty_finalstand") //Whos Who
+		return "Who's Who";
+	if(perk == "specialty_grenadepulldeath") //Electric Cherry
+		return "Electric Cherry";
+	if(perk == "specialty_flakjacket") //PHD Flopper
+		return "PHD Flopper";
+	if(perk == "specialty_deadshot") //Deadshot
+		return "Deadshot Daiquiri";
+	if(perk == "specialty_scavenger") //Tombstone
+		return "Tombstone";
+	if(perk == "specialty_nomotionsensor") //Vulture
+		return "Vulture Aid";
+}
+
+give_perk_override( perk, bought )
+{
+    self setperk( perk );
+    self.num_perks++;
+
+    if ( isdefined( bought ) && bought )
+    {
+        self maps\mp\zombies\_zm_audio::playerexert( "burp" );
+
+        if ( isdefined( level.remove_perk_vo_delay ) && level.remove_perk_vo_delay )
+            self maps\mp\zombies\_zm_audio::perk_vox( perk );
+        else
+            self delay_thread( 1.5, maps\mp\zombies\_zm_audio::perk_vox, perk );
+
+        self setblur( 4, 0.1 );
+        wait 0.1;
+        self setblur( 0, 0.1 );
+        self notify( "perk_bought", perk );
+    }
+
+    self perk_set_max_health_if_jugg( perk, 1, 0 );
+
+    if ( !( isdefined( level.disable_deadshot_clientfield ) && level.disable_deadshot_clientfield ) )
+    {
+        if ( perk == "specialty_deadshot" )
+            self setclientfieldtoplayer( "deadshot_perk", 1 );
+        else if ( perk == "specialty_deadshot_upgrade" )
+            self setclientfieldtoplayer( "deadshot_perk", 1 );
+    }
+
+    if ( perk == "specialty_scavenger" )
+        self.hasperkspecialtytombstone = 1;
+
+    players = get_players();
+
+    if ( use_solo_revive() && perk == "specialty_quickrevive" )
+    {
+        self.lives = 1;
+
+        if ( !isdefined( level.solo_lives_given ) )
+            level.solo_lives_given = 0;
+
+        if ( isdefined( level.solo_game_free_player_quickrevive ) )
+            level.solo_game_free_player_quickrevive = undefined;
+        else
+            level.solo_lives_given++;
+
+        if ( level.solo_lives_given >= 3 )
+            flag_set( "solo_revive" );
+
+        self thread solo_revive_buy_trigger_move( perk );
+    }
+
+    if ( perk == "specialty_finalstand" )
+    {
+        self.lives = 1;
+        self.hasperkspecialtychugabud = 1;
+        self notify( "perk_chugabud_activated" );
+    }
+
+    if ( isdefined( level._custom_perks[perk] ) && isdefined( level._custom_perks[perk].player_thread_give ) )
+        self thread [[ level._custom_perks[perk].player_thread_give ]]();
+
+    self set_perk_clientfield( perk, 1 );
+    maps\mp\_demo::bookmark( "zm_player_perk", gettime(), self );
+    self maps\mp\zombies\_zm_stats::increment_client_stat( "perks_drank" );
+    self maps\mp\zombies\_zm_stats::increment_client_stat( perk + "_drank" );
+    self maps\mp\zombies\_zm_stats::increment_player_stat( perk + "_drank" );
+    self maps\mp\zombies\_zm_stats::increment_player_stat( "perks_drank" );
+
+    if ( !isdefined( self.perk_history ) )
+        self.perk_history = [];
+
+    self.perk_history = add_to_array( self.perk_history, perk, 0 );
+
+    if ( !isdefined( self.perks_active ) )
+        self.perks_active = [];
+
+    self.perks_active[self.perks_active.size] = perk;
+    self notify( "perk_acquired" );
+    self thread perk_think( perk );
+    self perkHUD(perk);
 }
