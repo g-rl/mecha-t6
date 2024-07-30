@@ -17,6 +17,11 @@ PlaceHolder() {
     self iprintlnbold("broken");
 }
 
+IsDebug() {
+	if(isDefined(level.debugged)) 
+		return true;
+}
+
 InArray(a, check) {
 	if( IsInArray(a, check))
         return true;

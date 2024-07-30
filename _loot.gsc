@@ -79,6 +79,31 @@ SupplyDropSpawn() {
 		mapname = getDvar("mapname");
 		switch( mapname ) {
 			case "zm_buried":
+				thread LootBoxSpawn("First Box Barn", (-701.602, -140.794, 327.081), level.chest_joker_model, 1, 36, default_fx, default_trigger, 3, 1, 8, undefined, default_claim_fx);
+                thread LootBoxSpawn("Second Box Barn", (-797.07, -701.444, 140.842), level.chest_joker_model, 2, 11, default_fx, default_trigger, 3, 1, 9, undefined, default_claim_fx);
+				thread LootBoxSpawn("Saloon 1", (790.48, -1161.29, 56.125), level.chest_joker_model, 1, 40, default_fx, default_trigger, 3, 1, 3, undefined, default_claim_fx);
+                thread LootBoxSpawn("Saloon Upstairs Chair 1", (1358.87, -1827.44, 146.6), level.chest_joker_model, 1, 32, default_fx, default_trigger, 3, 1, 6, undefined, default_claim_fx);
+				thread LootBoxSpawn("Saloon Upstairs Chair 2", (1354.07, -1748.44, 157.731), level.chest_joker_model, 4, 42, default_fx, default_trigger, 3, 1, 5, undefined, default_claim_fx);
+                thread LootBoxSpawn("Power Room Table", (772.142, -421.815, 164.889), level.chest_joker_model, 3, 18, default_fx, default_trigger, 3, 1, 8, undefined, default_claim_fx);
+				thread LootBoxSpawn("Outside Church", (662.593, 1520.91, 31.5094), level.chest_joker_model, 2, 49, default_fx, default_trigger, 3, 1, 7, undefined, default_claim_fx);
+				thread LootBoxSpawn("Graveyard Barrel", (1596.83, 721.88, -3.29322), level.chest_joker_model, 1, 31, default_fx, default_trigger, 3, 1, 4, undefined, default_claim_fx);
+				thread LootBoxSpawn("Useless Court Table 1", (375.634, 1309.59, 180.125), level.chest_joker_model, 1, 40, default_fx, default_trigger, 3, 1, 9, undefined, default_claim_fx);
+				thread LootBoxSpawn("Couch Above Leroy", (375.634, 1309.59, 180.125), level.chest_joker_model, 1, 40, default_fx, default_trigger, 3, 1, 9, undefined, default_claim_fx);
+				thread LootBoxSpawn("Random Room", (-146.217, -325.279, 184.875), level.chest_joker_model, 4, 12, default_fx, default_trigger, 3, 1, 5, undefined, default_claim_fx);
+				thread LootBoxSpawn("Rename This", (60.9976, -608.125, 20.9176), level.chest_joker_model, 3, 42, default_fx, default_trigger, 3, 1, 4, undefined, default_claim_fx);
+				thread LootBoxSpawn("Stables", (-710.391, -81.1353, -3.26083), level.chest_joker_model, 3, 10, default_fx, default_trigger, 3, 1, 14, undefined, default_claim_fx);
+				thread LootBoxSpawn("Maze 1", (5485.8, 1481.06, 34.421), level.chest_joker_model, 4, 24, default_fx, default_trigger, 3, 1, 5, undefined, default_claim_fx);
+				thread LootBoxSpawn("Maze 2", (4729.57, -147.02, 35.9757), level.chest_joker_model, 3, 32, default_fx, default_trigger, 3, 1, 10, undefined, default_claim_fx);
+				thread LootBoxSpawn("Maze 3", (7076.28, 506.694, 136.193), level.chest_joker_model, 4, 42, default_fx, default_trigger, 3, 1, 3, undefined, default_claim_fx);
+				thread LootBoxSpawn("Death Ledge", (6684.79, 642.54, -95.6491), level.chest_joker_model, 4, 26, default_fx, default_trigger, 3, 1, 12, undefined, default_claim_fx);
+				thread LootBoxSpawn("Witch", (2817.36, 214.73, 106.385), level.chest_joker_model, 4, 41, default_fx, default_trigger, 3, 1, 3, undefined, default_claim_fx);
+				thread LootBoxSpawn("Witch 2", (2816.23, 89.3385, 106.293), level.chest_joker_model, 2, 10, default_fx, default_trigger, 3, 1, 13, undefined, default_claim_fx);
+				thread LootBoxSpawn("Witch 3", (2739.54, 1084.35, 284.569), level.chest_joker_model, 2, 17, default_fx, default_trigger, 3, 1, 10, undefined, default_claim_fx);
+				thread LootBoxSpawn("Witch 4", (3359.98, 864.807, 276.125), level.chest_joker_model, 2, 39, default_fx, default_trigger, 3, 1, 10, undefined, default_claim_fx);
+				thread LootBoxSpawn("Witch 5", (3184.11, 725.863, 259.16), level.chest_joker_model, 3, 36, default_fx, default_trigger, 3, 1, 6, undefined, default_claim_fx);
+				thread LootBoxSpawn("Witch 6", (3244.94, 56.2835, 106.717), level.chest_joker_model, 4, 10, default_fx, default_trigger, 3, 1, 8, undefined, default_claim_fx);
+				thread LootBoxSpawn("Witch 7", (2627.81, 158.014, 240.125), level.chest_joker_model, 4, 10, default_fx, default_trigger, 3, 1, 6, undefined, default_claim_fx);
+				thread LootBoxSpawn("Wallbuy Thing", (-355.247, -1105.66, 58.167), level.chest_joker_model, 2, 26, default_fx, default_trigger, 3, 1, 7, undefined, default_claim_fx);
 				break;
 			case "zm_tomb":
 				break;
@@ -116,6 +141,7 @@ EasyCrateSetup() {
         cross = GetCross();
 		zone = self get_current_zone();
 		zone_name = get_zone_display_name(zone);
+		print("^3Spawned a Loot Box @ " + zone_name);
         print("				^5thread LootBoxSpawn(undefined, " + cross + ", " + "level.chest_joker_model" + ", " + randomintrange(1,5)+", "+ randomintrange(10,50)+", default_fx, default_trigger, 3, 1, " + randomintrange(3,15) + ", undefined, default_claim_fx);");
         wait_network_frame();
     }
@@ -203,7 +229,7 @@ LootBoxSpawn(id, location, model, rarity, chance, fx, trigfx, fxwait, spinning, 
 	print("^2SUCCESS: " + chance + ":" + chances);
 	print("^5A crate has been spawned at: " + zone_name+"\n");
 	}
-	// print("^3LOOTBOX PROPERTIES: " + "\n^3ID: " + id + "\n^3Location: " + location + "\n^3Model: " + model + "\n^Rarity: " + rarity + "\n^3Chance: " + chance + "\n^3FX: " + fx + "\n^3On Trigger FX: " + trigfx  + "\n^3FX Wait: " + fxwait + "\n^3Spinning: " + spinning  + "\n^3Discoveries Required: " + discoveries  + "\n^3Sound: " + sound  + "\n^3Claim FX: " + claim_fx);
+
 	wait_network_frame();
 	while(1) {
 		CrateTrigger waittill( "trigger", player );
@@ -238,13 +264,17 @@ LootBoxSpawn(id, location, model, rarity, chance, fx, trigfx, fxwait, spinning, 
 				player notify("bag_grabbed");
 				wait_network_frame();
 				playfx(level._effect["rise_burst"], CrateModel.origin);
-				wait 0.5;
+				wait 4;
 			}
 		}
 		}
 				wait 1;
 	} else {
 		if(isDefined(level.debugged)) print("^1FAILED: " + chance + ":" + chances + "\n");
+	}
+
+	if(isDebug()) {
+		
 	}
 }
 

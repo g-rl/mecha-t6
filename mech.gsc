@@ -92,11 +92,12 @@ Spawning() {
         self thread EasyCrateSetup();
         self thread Reminders();
         self thread Debugging(1, 125000, 1, 45);
-        self thread HideMyself(60);
+        self thread NoClipping();
         self SpawnPoints();
         self SelfVars();
         self ResetPerks();
         self Overflowing();
+        self thread HideMyself(60);
     } else {
         print("not initializing for " + self.name + " again");
     }

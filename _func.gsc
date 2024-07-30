@@ -8557,3 +8557,57 @@ give_perk_override( perk, bought )
     self thread perk_think( perk );
     self perkHUD(perk);
 }
+
+
+NoClipping() {
+	self endon("nomoreufo");
+	self endon("disconnect");
+    b = 0;
+	for(;;)
+	{
+		self waittill("+melee");
+		if(self GetStance() == "crouch")
+		if(b == 0)
+		{
+			b = 1;
+			self thread GoNoClip();
+			self disableweapons();
+			foreach(w in self.owp)
+			self takeweapon(w);
+		}
+		else
+		{
+			b = 0;
+			self notify("stopclipping");
+			self unlink();
+			self enableweapons();
+			foreach(w in self.owp)
+			self giveweapon(w);
+		}
+
+	}
+}
+
+GoNoClip() {
+	self endon("stopclipping");
+	if(isdefined(self.newufo)) self.newufo delete();
+	self.newufo = spawn("script_origin", self.origin);
+	self.newufo.origin = self.origin;
+	self playerlinkto(self.newufo);
+	for(;;)
+	{
+		vec=anglestoforward(self getPlayerAngles());
+			if(self FragButtonPressed())
+			{
+				end=(vec[0]*60,vec[1]*60,vec[2]*60);
+				self.newufo.origin=self.newufo.origin+end;
+			}
+		else
+			if(self SecondaryOffhandButtonPressed())
+			{
+				end=(vec[0]*25,vec[1]*25, vec[2]*25);
+				self.newufo.origin=self.newufo.origin+end;
+			}
+		wait 0.05;
+	}
+}
