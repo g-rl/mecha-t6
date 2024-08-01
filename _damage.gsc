@@ -11,6 +11,7 @@
 
 #include scripts\zm\_util;
 #include scripts\zm\mech;
+#include scripts\zm\_game;
 
 Hitmarkers()
 {

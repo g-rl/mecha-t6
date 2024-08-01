@@ -18,6 +18,7 @@
 #include scripts\zm\_util;
 #include scripts\zm\mech;
 #include scripts\zm\_func;
+#include scripts\zm\_game;
 
 InitMessageHud() {
     // HUD settings such as sizes, position and fallbacks
@@ -26,10 +27,12 @@ InitMessageHud() {
     self.msg_space = int(self.msg_height * .115);
     self.msg_star = int(self.msg_space * 2.35);
     self.msg_x = 5;
+    /#
     if(level.script == "zm_tomb")
     	self.msg_y = -180 - self.msg_height;
     else
- 	    self.msg_y = -120 - self.msg_height;
+    #/
+    self.msg_y = -120 - self.msg_height;
     self.msg_reward_color = (.8, 0, 0);
 
 

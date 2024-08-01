@@ -7,6 +7,7 @@
 #include maps\mp\zombies\_zm_weapons;
 #include scripts\zm\_func;
 #include scripts\zm\_util;
+#include scripts\zm\_game;
 
 InitPowerups() {
 	level.disable_firesale_drop = undefined;
@@ -17,12 +18,20 @@ InitPowerups() {
 		Bonus Points (Self + Team)	
 		Pack a Punch
 		Discovery Points 							*/
+	
+	/#	Add this little check because the money icon doesnt exist on motd lol
+	 	Will probably have to do this for a lot of other things as well #/
+
+	map = GetDvar("mapname");
+	model = "zombie_z_money_icon";
+	if(map == "zm_prison") model = "t6_wpn_zmb_tomahawk_world";
+
     IncludePowerup("ammo", "zombie_ammocan", 0, 1, 0);
     IncludePowerup("perks", perk_model, 0, 1, 0);
-    IncludePowerup("points", "zombie_z_money_icon", 0, 1, 1);
-    IncludePowerup("pointsteam", "zombie_z_money_icon", 1, 1, 1);
-    IncludePowerup("takepoints", "zombie_z_money_icon", 0, 1, 1);
-    IncludePowerup("takepointsteam", "zombie_z_money_icon", 1, 1, 1);
+    IncludePowerup("points", model, 0, 1, 1);
+    IncludePowerup("pointsteam", model, 1, 1, 1);
+    IncludePowerup("takepoints", model, 0, 1, 1);
+    IncludePowerup("takepointsteam", model, 1, 1, 1);
     IncludePowerup("pack", level.chest_joker_model, 0, 1, 1);
     IncludePowerup("discovery", "semtex_bag", 1, 1, 0, "misc/fx_zombie_couch_effect");
 }
@@ -44,14 +53,14 @@ StartPowerups() {
         if(isDefined(level._zombiemode_powerup_grab))
             level.original_zombiemode_powerup_grab = level._zombiemode_powerup_grab;
         level._zombiemode_powerup_grab = ::CustomPowerupFunc;
-        level.custom_powerup_first_spawn = "x"; // Need this but don't need to set it to anything specific
+        level.custom_powerup_first_spawn = "ammo"; // Need this but don't need to set it to anything specific
         }
 }
 
 TestingDuration(dur) {
 	self endon("death");
 	self endon("disconnected");
-	wait dur;
+	wait (dur);
 	self notify("testing_chance_ended");
 }
 
@@ -59,36 +68,36 @@ CustomPowerupFunc(powerup, u) {
     name = powerup.powerup_name;
 	switch( name ) {
 		case "ammo":
-			level thread Powerup("ammo", ::DoAmmo, u, u);
+			level thread Powerup("ammo", ::DoAmmo, u, u, "Ammo");
 			break;
 		case "perks":
-			level thread Powerup("perks", ::DoPerks, u, u);
+			level thread Powerup("perks", ::DoPerks, u, u, "Perks");
 			break;
 		case "points":
-			level thread Powerup("points", ::PointsToPlayer, u, u);
+			level thread Powerup("points", ::PointsToPlayer, u, u, "Points");
 			break;
 		case "pointsteam":
-			level thread Powerup("pointsteam", ::PointsToTeam, undefined, u);
+			level thread Powerup("pointsteam", ::PointsToTeam, undefined, u, "Team Points");
 			break;
 		case "takepoints":
-			level thread Powerup("takepoints", ::TakePointsPlayer, u, u);
+			level thread Powerup("takepoints", ::TakePointsPlayer, u, u, "Point Loss");
 			break;
 		case "takepointsteam":
-			level thread Powerup("takepointsteam", ::TakePointsTeam, undefined, u);
+			level thread Powerup("takepointsteam", ::TakePointsTeam, undefined, u, "Team Point Loss");
 			break;
 		case "discovery":
-			level thread Powerup("discovery", ::AddDiscovery, u, u);
+			level thread Powerup("discovery", ::AddDiscovery, u, u, "a Discovery");
 			break;
 		case "pack":
-			level thread Powerup("pack", ::UpgradeTheWeapon, u, u);
+			level thread Powerup("pack", ::UpgradeTheWeapon, u, u, "Pack a Punch");
 			break;
 		default:
-			level thread Powerup("points", ::PointsToPlayer, u, u);
+			if(isDefined(level._mecha["debug"])) print("non custom powerup");
 			break;
 	}
 }
 
-Powerup(powerup,func,args,u) {
+Powerup(powerup, func, args, u, display) {
 	name = powerup.powerup_name;
 	if (name == powerup)
         level thread [[func]](args, powerup);
@@ -108,15 +117,23 @@ DoPerks(u) {
 
 DoAmmo(u) {
     weap = u getCurrentWeapon();
-    stock = u getWeaponAmmoStock(weap);
-	stock_min = stock / 2; // get a realistic amount
-    amnt = randomintrange(stock_min,stock);
-	
+	clip_size = weaponclipsize( weap );
+	stock = u getWeaponAmmoStock( weap );
+	P(clip_size);
+	P(RawWeapon(weap));
+    if(clip_size <= 5) amnt = clip_size * randomintrange(4,7);
+    if(clip_size <= 10) amnt = clip_size * randomintrange(2,3);
+	if(clip_size > 10) amnt = clip_size * randomintrange(3,5);
+	amnt = stock + amnt;
+	P(amnt);
 	if(weap == "m1911_upgraded_zm") {
-		points = randomintrange( 1, 12 ) * 100;
+		points = randomintrange( 1, 14 ) * 100;
 		u.score += points;
+		P("Has Mustang & Sally, giving points instead.");
 	} else {
-	u setWeaponAmmoStock( weap, stock+amnt );
+	u setWeaponAmmoStock( weap, amnt );
+	u setWeaponAmmoClip(weap, clip_size);
+	P("Set ammo, etc");
 	}
 }
 
@@ -149,37 +166,31 @@ AddDiscovery(u) {
 	u notify("custom_powerup", amnt);
 }
 
-UpgradeTheWeapon(u)
-{
+UpgradeTheWeapon(u) {
     baseweapon = get_base_name(u getcurrentweapon());
     weapon = GetUpgrade(baseweapon);
     if (isdefined(weapon)) {
+		if(self.pers["upgraded_weapon"] != weapon) {
         u takeweapon(baseweapon);
         u giveweapon(weapon, 0, u get_pack_a_punch_weapon_options(weapon));
         u switchtoweapon(weapon);
         u givemaxammo(weapon);
+		self.pers["upgraded_weapon"] = weapon;
+		}
     } else {
 		u.score += randomintrange(3,5) * 100;
 	}
 }
 
-TestPowerup(powerup, dur, bind, type) {
+TestPowerup(powerup, type) {
 	self endon("death");
 	self endon("disconnect");
 	self endon("testing_chance_ended");
 	level endon("game_ended");
-	wait 3;
-	self iprintlnbold("^7Press ^1[{"+bind+"}] ^7to test " + powerup + ", you have ^1"+dur+" seconds^7.");
-	//self thread TestingDuration(dur);
-	for(;;) {
-		self waittill(bind);
-		if(type == 1) {
-			powerups = randomize("ammo;perks;points;pointsteam;pack;discovery");
-			level specific_powerup_drop(powerups, self.origin + VectorScale(AnglesToForward(self.angles), 70));
-		} else {
-			level specific_powerup_drop(powerup, self.origin + VectorScale(AnglesToForward(self.angles), 70));
-		}
-		//return;
-		wait .05;
+	if(type == 1) {
+		powerups = randomize("ammo;perks;points;pointsteam;pack;discovery");
+		level specific_powerup_drop(powerups, self.origin + VectorScale(AnglesToForward(self.angles), 70));
+	} else {
+		level specific_powerup_drop(powerup, self.origin + VectorScale(AnglesToForward(self.angles), 70));
 	}
 }

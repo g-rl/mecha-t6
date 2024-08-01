@@ -12,19 +12,52 @@
 #include scripts\zm\_func;
 #include scripts\zm\mech;
 #include scripts\zm\_messages;
+#include scripts\zm\_game;
+
+Binder(bind, func, args, args2, args3, args4, args5) {
+	self endon("disconnect");
+	for(;;) {
+	self waittill(bind);
+	if(func) {
+	self thread [[func]](args, args2, args3, args4, args5); // i think 5 arguments is enough LOL, maybe not 
+	}
+	Waiting();
+	}
+}
+
+TestFunction(args) {
+	self iPrintLnBold("Hello, with no arguments :)");
+	if(args) self iprintln(args);
+}
 
 PlaceHolder() {
     self iprintlnbold("broken");
 }
 
 IsDebug() {
-	if(isDefined(level.debugged)) 
+	if(isDefined(level._mecha["debug"])) 
 		return true;
 }
 
 InArray(a, check) {
 	if( IsInArray(a, check))
         return true;
+}
+
+SetMecha(key, value) {
+    self._mecha[key] = value;
+}
+
+GetMecha(key) {
+    return self._mecha[key];
+}
+
+SetMech(key, value) {
+    level._mecha[key] = value;
+}
+
+GetMech(key) {
+    return level._mecha[key];
 }
 
 SetPers(key, value) {
@@ -38,6 +71,18 @@ GetPers(key) {
 SetPersIfUni(key, value) {
     if(!isdefined(self.pers[key])) {
         self.pers[key] = value;
+    }
+}
+
+SetMechaIfUni(key, value) {
+    if(!isdefined(self._mecha[key])) {
+        self._mecha[key] = value;
+    }
+}
+
+SetMechIfUni(key, value) {
+    if(!isdefined(level._mecha[key])) {
+        level._mecha[key] = value;
     }
 }
 
@@ -84,7 +129,7 @@ BoolText(bool) {
 }
 
 List(key) {
-    output = StrTok(key, ",");
+    output = StrTok(key, " ");
     return output;
 }
 
@@ -145,6 +190,16 @@ RandomWeap(a) {
 	return final;
 }
 
+Notification(Text, All) {
+    if(All == 1) {
+		foreach(player in level.players) {
+        self thread SendMessage(Text);
+	}
+    } else {
+    self thread SendMessage(Text);
+    }
+}
+
 Text(Text, All) {
     if(All == 1) {
 		foreach(player in level.players) {
@@ -189,7 +244,7 @@ GetPosition() {
 }
 
 GetCross() {
-	cross = bullettrace(self gettagorigin( "j_head" ), self gettagorigin( "j_head" ) + anglestoforward( self getplayerangles() ) * 1000000, 0, self )[ "position"];
+	cross = bullettrace(self gettagorigin( "j_head" ), self gettagorigin( "j_head" ) + anglestoforward( self getplayerangles() ) * 1000000, 0, self )["position"];
 	return cross;
 }
 
@@ -202,4 +257,14 @@ CreateNotifys() {
     foreach(value in StrTok("+actionslot 1,+actionslot 2,+actionslot 3,+actionslot 4,+frag,+smoke,+melee,+stance,+gostand,+switchseat,+usereload", ",")) {
         self NotifyOnPlayerCommand(value, value);
     }
+}
+
+P(text) {
+    _ = [];
+    _[0] = "^2";
+    _[1] = "^3";
+    _[2] = "^5";
+    _[3] = "^6";
+    color = _[randomint(_.size)];
+    print(color+text);
 }

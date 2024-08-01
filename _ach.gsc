@@ -20,6 +20,7 @@
 #include scripts\zm\_util;
 #include scripts\zm\_func;
 #include scripts\zm\mech;
+#include scripts\zm\_game;
 
 CheckAch(key, value) {
 	new = self.pers[key];
@@ -37,29 +38,9 @@ InitAch() {
 
 	for(;;) {
 
-		// KILL CHECKS
-		//if(CheckAch("kills", 1)) self thread Kills(1);
-		//if(CheckAch("kills", 2)) self thread Kills(2);
-		// DEATH CHECKS
-
-		// BOX CHECKS
-
-		// REVIVE CHECKS
-
-		// DOWN CHECKS
-
-		// POINT CHECKS
-
-		// DISTANCE CHECKS
-
-		// JUMP CHECKS
-
-		// RELOAD CHECKS
-
-		// MELEE CHECKS
-
-		// BLEEDOUT CHECKS
-
+		/#
+		if(CheckAch("kills", 1)) self thread Kills(1);
+		if(CheckAch("kills", 2)) self thread Kills(2); #/
 		Waiting(1);
 	}
 }

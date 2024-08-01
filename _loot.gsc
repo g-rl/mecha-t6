@@ -21,20 +21,23 @@
 #include scripts\zm\_func;
 #include scripts\zm\_messages;
 #include scripts\zm\mech;
+#include scripts\zm\_game;
 
 // Supply Drop System - T6 Zombies
 // LootBoxSpawn(id, location, model, rarity, chance, fx, trigfx, fxwait, spinning, discoveries, sound, claim_fx) 
 
-/* SYSTEM:
+	/# SYSTEM:
 	ENCHANTS: Common, Uncommon, Rare, Enchanted, Legendary
-*/
+	#/
 
 SupplyDropSpawn() { 
 
 	default_trigger = "character_fire_death_torso";
+	if(getDvar("mapname") == "zm_tomb") default_trigger = ""; // no fire on origins i think
 	default_fx = "powerup_off";
 	default_claim_fx = "poltergeist";
 	default_model = level.chest_joker_model;
+	default_chance = randomintrange(15,35);
 
 	if (getDvar( "g_gametype" ) == "zgrief" || getDvar( "g_gametype" ) == "zstandard") {
 		mapname = getDvar("mapname");
@@ -75,6 +78,7 @@ SupplyDropSpawn() {
 					break;
 			}
 		}
+		
 	} else {
 		mapname = getDvar("mapname");
 		switch( mapname ) {
@@ -106,10 +110,35 @@ SupplyDropSpawn() {
 				thread LootBoxSpawn("Wallbuy Thing", (-355.247, -1105.66, 58.167), level.chest_joker_model, 2, 26, default_fx, default_trigger, 3, 1, 7, undefined, default_claim_fx);
 				break;
 			case "zm_tomb":
+				thread LootBoxSpawn(undefined, (-222.391, 4222.59, -316.69), level.chest_joker_model, 3, 46, default_fx, default_trigger, 3, 1, 13, undefined, default_claim_fx);
+				thread LootBoxSpawn(undefined, (-539.756, 2456.32, -212.941), level.chest_joker_model, 3, 34, default_fx, default_trigger, 3, 1, 11, undefined, default_claim_fx);
+				thread LootBoxSpawn(undefined, (922.986, 2210.02, -95.3966), level.chest_joker_model, 4, 28, default_fx, default_trigger, 3, 1, 5, undefined, default_claim_fx);
+				thread LootBoxSpawn(undefined, (-904.059, -146.229, 138.403), level.chest_joker_model, 1, 45, default_fx, default_trigger, 3, 1, 4, undefined, default_claim_fx);
+				thread LootBoxSpawn(undefined, (-317.588, -135.862, 66.7989), level.chest_joker_model, 3, 27, default_fx, default_trigger, 3, 1, 7, undefined, default_claim_fx);
+				thread LootBoxSpawn(undefined, (223.455, 122.339, -718.83), level.chest_joker_model, 4, 48, default_fx, default_trigger, 3, 1, 13, undefined, default_claim_fx);
+				thread LootBoxSpawn(undefined, (138.56, -2983.55, 91.9652), level.chest_joker_model, 4, 18, default_fx, default_trigger, 3, 1, 3, undefined, default_claim_fx);
+				thread LootBoxSpawn(undefined, (-1669.81, 3894.27, -276.026), level.chest_joker_model, 1, 27, default_fx, default_trigger, 3, 1, 13, undefined, default_claim_fx);
+				thread LootBoxSpawn(undefined, (236.264, 2476.14, -85.9664), level.chest_joker_model, 2, 38, default_fx, default_trigger, 3, 1, 12, undefined, default_claim_fx);
+				thread LootBoxSpawn(undefined, (1442.49, 3556.97, -18.6446), level.chest_joker_model, 2, 21, default_fx, default_trigger, 3, 1, 14, undefined, default_claim_fx);
+				thread LootBoxSpawn(undefined, (-2510.95, -72.3619, 268.125), level.chest_joker_model, 1, 46, default_fx, default_trigger, 3, 1, 13, undefined, default_claim_fx);
+				thread LootBoxSpawn(undefined, (-2369.69, 69.7339, 135.965), level.chest_joker_model, 3, 20, default_fx, default_trigger, 3, 1, 7, undefined, default_claim_fx);
 				break;
 			case "zm_highrise":
 				break;
 			case "zm_prison":
+				thread LootBoxSpawn(undefined, (-858.672, 9694.06, 1356.13), level.chest_joker_model, 3, 41, default_fx, default_trigger, 3, 1, 14, undefined, default_claim_fx);
+				thread LootBoxSpawn(undefined, (240.497, 8180.44, 733.743), level.chest_joker_model, 1, 28, default_fx, default_trigger, 3, 1, 3, undefined, default_claim_fx);
+				thread LootBoxSpawn(undefined, (-1341.33, 5831.5, -28.5023), level.chest_joker_model, 3, 27, default_fx, default_trigger, 3, 1, 12, undefined, default_claim_fx);
+				thread LootBoxSpawn(undefined, (-1373.02, 5316.92, -72), level.chest_joker_model, 4, 43, default_fx, default_trigger, 3, 1, 5, undefined, default_claim_fx);
+				thread LootBoxSpawn(undefined, (-218.548, 5650.47, -28.8901), level.chest_joker_model, 4, 39, default_fx, default_trigger, 3, 1, 12, undefined, default_claim_fx);
+				thread LootBoxSpawn(undefined, (902.367, 8325.88, 1582.4), level.chest_joker_model, 2, 16, default_fx, default_trigger, 3, 1, 9, undefined, default_claim_fx);
+				thread LootBoxSpawn(undefined, (713.216, 9211.42, 1355.83), level.chest_joker_model, 1, 12, default_fx, default_trigger, 3, 1, 3, undefined, default_claim_fx);
+ 				thread LootBoxSpawn(undefined, (1552.13, 10480.5, 1174.55), level.chest_joker_model, 1, 19, default_fx, default_trigger, 3, 1, 9, undefined, default_claim_fx);
+				thread LootBoxSpawn(undefined, (88.414, 8855.77, 1128.13), level.chest_joker_model, 4, 25, default_fx, default_trigger, 3, 1, 11, undefined, default_claim_fx);
+				thread LootBoxSpawn(undefined, (1389.4, 9465.21, 1449.94), level.chest_joker_model, 3, 10, default_fx, default_trigger, 3, 1, 8, undefined, default_claim_fx);
+				thread LootBoxSpawn(undefined, (1747.24, 9879.41, 1449.94), level.chest_joker_model, 1, 39, default_fx, default_trigger, 3, 1, 9, undefined, default_claim_fx);
+				thread LootBoxSpawn(undefined, (3361.69, 9372.15, 1379.97), level.chest_joker_model, 1, 34, default_fx, default_trigger, 3, 1, 9, undefined, default_claim_fx);
+				thread LootBoxSpawn(undefined, (2660.63, 10029.4, 1371.81), level.chest_joker_model, 2, 46, default_fx, default_trigger, 3, 1, 11, undefined, default_claim_fx);
 				break;
 			default:
 				break;
@@ -131,37 +160,19 @@ CrossMonitor() {
     }
 }
 
-EasyCrateSetup() {
+CrateSetup() {
 	self endon("death");
 	self endon("disconnect");
 	level endon("game_ended");
-    for(;;) {
-        self waittill("+actionslot 1");
+	if(level._mecha["debug"]) {
         pos = GetPosition();
         cross = GetCross();
 		zone = self get_current_zone();
 		zone_name = get_zone_display_name(zone);
 		print("^3Spawned a Loot Box @ " + zone_name);
-        print("				^5thread LootBoxSpawn(undefined, " + cross + ", " + "level.chest_joker_model" + ", " + randomintrange(1,5)+", "+ randomintrange(10,50)+", default_fx, default_trigger, 3, 1, " + randomintrange(3,15) + ", undefined, default_claim_fx);");
+        print("				^5thread LootBoxSpawn(undefined, " + cross + ", " + "level.chest_joker_model" + ", " + randomintrange(1,5)+", default_chance, default_fx, default_trigger, 3, 1, " + randomintrange(3,15) + ", undefined, default_claim_fx);");
         wait_network_frame();
     }
-}
-
-createIcon(player, origin, shader)
-{
-    height_offset = 15;
-    icon = newclienthudelem(player);
-    icon.x = origin[0];
-    icon.y = origin[1];
-    icon.z = origin[2] + height_offset;
-    icon.alpha = 1;
-    icon.archived = 1;
-    icon setshader(shader, 8, 8);
-    icon setwaypoint(1);
-    icon.foreground = 1;
-    icon.hidewheninmenu = 1;
-
-    return icon;
 }
 
 LootBoxSpawn(id, location, model, rarity, chance, fx, trigfx, fxwait, spinning, discoveries, sound, claim_fx) 
@@ -184,10 +195,10 @@ LootBoxSpawn(id, location, model, rarity, chance, fx, trigfx, fxwait, spinning, 
 	}
 
 	required_amnt = discoveries;
-	hint = "Hold " + RarityToColor(rarity) +"[{+melee}] ^7to loot\n* " + RarityColor(rarity);
+	hint = "Hold " + RarityToColor(rarity) +"[{+melee}] ^7to loot\n* " + RarityDisplay(rarity);
     chances = randomintrange(1,100);
 
-	if(isDefined(level.debugged)) {
+	if(level._mecha["debug"]) {
 	if(isDefined(id)) print("^2"+id+ ": " + chance + ":" + chances);
 	if(!isDefined(id)) print("^2Undefined: " + chance + ":" + chances);
 	}
@@ -225,7 +236,7 @@ LootBoxSpawn(id, location, model, rarity, chance, fx, trigfx, fxwait, spinning, 
 	// CrateModel thread createIcon(CrateModel, location, "specialty_doublepoints_zombies");
 	zone = CrateModel get_current_zone();
 	zone_name = get_zone_display_name(zone);
-	if(isDefined(level.debugged)) {
+	if(level._mecha["debug"]) {
 	print("^2SUCCESS: " + chance + ":" + chances);
 	print("^5A crate has been spawned at: " + zone_name+"\n");
 	}
@@ -238,10 +249,9 @@ LootBoxSpawn(id, location, model, rarity, chance, fx, trigfx, fxwait, spinning, 
 			playfx(level._effect["rise_dust"], CrateModel.origin);	
 			player.pers["supply_effect_shown"] = true;
 		}
-		discovery = player.discoveries;
-			
+		discovery = player.discoveries;	
 		if(discovery < required_amnt || discovery == 0) {
-			CrateTrigger setHintString("You need " + RarityToColor(rarity) +required_amnt+" Discoveries ^7to loot\n* " + RarityColor(rarity));
+			CrateTrigger setHintString("You need " + RarityToColor(rarity) +required_amnt+" Discoveries ^7to loot\n* " + RarityDisplay(rarity));
 			CrateTrigger SetCursorHint("HINT_NOICON"); 
 			continue;
 		} else {
@@ -255,7 +265,7 @@ LootBoxSpawn(id, location, model, rarity, chance, fx, trigfx, fxwait, spinning, 
 					player playsound("zmb_cha_ching");
 				}
 
-				player thread LootTable(rarity, claim_fx);
+				player thread LootTable(rarity, claim_fx, CrateModel);
 				playfx(level._effect[trigfx], CrateModel.origin);
 				wait_network_frame();
 				CrateTrigger Delete();
@@ -270,7 +280,7 @@ LootBoxSpawn(id, location, model, rarity, chance, fx, trigfx, fxwait, spinning, 
 		}
 				wait 1;
 	} else {
-		if(isDefined(level.debugged)) print("^1FAILED: " + chance + ":" + chances + "\n");
+		if(level._mecha["debug"]) print("^1FAILED: " + chance + ":" + chances + "\n");
 	}
 
 	if(isDebug()) {
@@ -279,7 +289,7 @@ LootBoxSpawn(id, location, model, rarity, chance, fx, trigfx, fxwait, spinning, 
 }
 
 // loot table system works flawlessly, add chances later (maybe)
-LootTable(rarity, fx) {
+LootTable(rarity, fx, model) {
     switch(rarity) {
         case "common":    
             loot = Loot("common_points uncommon_points");
@@ -300,12 +310,12 @@ LootTable(rarity, fx) {
 			self playsound(level.zmb_laugh_alias);
             break;
     }
-	self thread RandomizeLoot(rarity, loot);
+	self thread RandomizeLoot(rarity, loot, model);
 	self thread ClaimFX(fx);
 }
 
-RandomizeLoot(rarity, loot) {
-	powerups = randomize("ammo;perks;points;pointsteam;pack;discovery");
+RandomizeLoot(rarity, loot, model) {
+	powerups = Loot("ammo perks points pointsteam pack discovery");
     switch(loot) {
         case "common_points":    
             self.score += randomIntRange(1,12) * 100;
@@ -320,16 +330,16 @@ RandomizeLoot(rarity, loot) {
 			display = "Points [^5Rare^7]";
             break;
         case "random_powerup":
-			level specific_powerup_drop(powerups, self.origin, 70);
+			level specific_powerup_drop(powerups, model.origin, 70);
 			display = "a Random Powerup";
 			debug = powerups;
             break;
         case "pack":
-			level specific_powerup_drop("pack", self.origin, 70);
+			level specific_powerup_drop("pack", model.origin, 70);
 			display = "Pack a Punch";
             break;
         case "perk":
-			level specific_powerup_drop("perks", self.origin, 70);
+			level specific_powerup_drop("perks", model.origin, 70);
 			display = "a Free Perk";
             break;
         case "key":
@@ -341,13 +351,13 @@ RandomizeLoot(rarity, loot) {
             break;
     	}  
 
-		self thread SendMessage("You found " + display);
+		// self thread SendMessage("You found " + display);
 
-		if(isDefined(level.debugged)) {
+		if(level._mecha["debug"]) {
 		if(loot == "random_powerup") {
-		print("Loot table chosen: " + RarityColor(rarity) + " | " + loot + " (" + debug + ")");
+		print("Loot table chosen: " + RarityDisplay(rarity) + " | " + loot + " (" + debug + ")");
 		} else {
-		print("Loot table chosen: " + RarityColor(rarity) + " | " + loot);
+		print("Loot table chosen: " + RarityDisplay(rarity) + " | " + loot);
 		}
 	}
 }
@@ -358,10 +368,11 @@ KeyTracker() {
 
 	self waittill("key_found");
 	self SetPersIfUni("has_key", true);
-	print("key found");
+	P("> Found Key");
 }
 
 ClaimFX(fx) {
+	if(fx == "" || !fx) return;
 	playfx(level._effect[fx], self.origin);
 }
 
@@ -369,12 +380,11 @@ ModelEffects(fx, fxwait)
 {
 	level endon("bag_grabbed");
 	level endon("game_ended");
-	if(isDefined(fx)) {
+	if(fx) {
 	while(isDefined(self)) {
 		playfx(level._effect[fx], self.origin);
         wait (fxwait);
-	}
-	} else {
+		}
 	}
 }
 
@@ -387,8 +397,7 @@ SpinModel(spinning)
 	while(isDefined(self)) {
 		self rotateTo((self.angles[0], self.angles[1]+90, self.angles[2]), .3);
 		wait .3;
-	}
-	} else {
+		}
 	}
 }
 
@@ -407,10 +416,10 @@ RarityToColor(rarity) {
         default:
 			return "^1";
     }
-	if(isDefined(level.debugged)) print(rarity);
+	if(level._mecha["debug"]) print(rarity);
 }
 
-RarityColor(rarity) {
+RarityDisplay(rarity) {
     switch(rarity) {
         case "common":
             return "^2Common";
@@ -425,5 +434,5 @@ RarityColor(rarity) {
         default:
             return "^1Broken Item [FIX]";
     }
-	if(isDefined(level.debugged)) print(rarity);
+	if(level._mecha["debug"]) print(rarity);
 }
