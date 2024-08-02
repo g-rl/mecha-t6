@@ -104,7 +104,6 @@ RoundHud()
 		case 1:
 			roundCounter destroyElem();
 			roundCounter = createservericon("hud_chalk_1", 50, 50);
-
 			break;
 	
 		case 2:
@@ -3246,11 +3245,10 @@ BoxPrice(price)
     }
 }
 
-CamoDvars()
-{
-	create_dvar("anim_pap_camo_mob", 1);
-	create_dvar("anim_pap_camo_buried", 1);
-	create_dvar("anim_pap_camo_origins", 0);
+CamoDvars() {
+	NewDvar("anim_pap_camo_mob", 1);
+	NewDvar("anim_pap_camo_buried", 1);
+	NewDvar("anim_pap_camo_origins", 0);
 }
 
 perk_machine_quarter_change()
@@ -3964,20 +3962,14 @@ switchtoprimary()
     self getweaponslistprimaries();
     foreach( weapon in primary )
     {
-        self switchtoweapon( primary[ 1] );
+        self switchtoweapon( primary[1] );
     }
 
 }
 
-
 get_player_weapon_limit_override( player ) //checked matches cerberus output
 {
-	// if ( isDefined( level.get_player_weapon_limit ) )
-	// {
-	// 	return [[ level.get_player_weapon_limit ]]( player );
-	// }
 	weapon_limit = 3;
-
 	return weapon_limit;
 }
 
@@ -3998,7 +3990,7 @@ getPlayerName( player )
 
 DisableQuotes()
 {
-	create_dvar( "DisableQuotes", 1 );
+	NewDvar( "DisableQuotes", 1 );
     
     self endon("disconnect");
     for(;;)
@@ -5166,7 +5158,7 @@ BuildableRadius()
 
 RapidFire()
 {
-	create_dvar( "RapidFire", 0 );
+	NewDvar( "RapidFire", 0 );
     
     self endon("disconnect");
     for(;;)
@@ -5370,12 +5362,6 @@ imsg_cleanup_end_game()
 	{
 		self destroy();
 	}
-}
-
-create_dvar( dvar, set )
-{
-    if( getDvar( dvar ) == "" )
-		setDvar( dvar, set );
 }
 
 isDvarAllowed( dvar )

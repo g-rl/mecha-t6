@@ -917,7 +917,7 @@ Reminders() {
 }
 
 Debugging(god, pts, disc, amnt) {
-	if(!isDefined(level._mecha["debug"])) return;
+	if(!level._mecha["debug"]) return;
 	if(isDefined(pts)) self.score = pts;
 	if(!isDefined(pts)) self.score = 200000;
 	if(god == 1) self enableInvulnerability();

@@ -33,13 +33,19 @@ Init() {
     level._mecha["arrow_shader"] = "ui_arrow_right";
     level._mecha["nuke_val"] = 60;
     level._mecha["powerup_drops"] = 6;
-    level._mecha["lava_damage"] = 1;
+    level._mecha["ignore_lava"] = 1;
     level._mecha["hide_time"] = randomintrange(30,60);
     level._mecha["perk_limit"] = 20;
     level._mecha["claymore_limit"] = 35;
     level._mecha["zombie_speed"] = "sprint";
     level._mecha["zombie_delay"] = 0;
     level._mecha["zombie_round_delay"] = 0;
+
+    if(level._mecha["debug"]) {
+    foreach(val in level._mecha) {
+        P(val);
+        }
+    }
 
     Precaching();
     Dvars();
@@ -69,8 +75,7 @@ PlayerSpawned() {
     self endon("disconnect");
     level endon("game_ended");
     for(;;) {	
-        self waittill("spawned_player");
-        
+        self waittill("spawned_player");   
         self CreateNotifys();
         self thread InitMessageHud(); 
         self thread SetupStartWeapons();
@@ -85,21 +90,10 @@ PlayerSpawned() {
 
 Spawning() {
 	self.downed = undefined;
-    self._mecha = [];
     if(!isDefined(self.FirstSpawn)) {
-        self SpawnPoints();
-        self SelfVars();
-        self ResetPerks();
         self title("Mecha - v" + GetMech("version"));
         self iprintln("Last Update: ^3" + GetMech("last_update"));
-        self._mecha["first_spawn"] = true; // trying custom pers
-
-        self thread Binder("+actionslot 2", ::TestPowerup, "ammo", 0);
-        self thread Binder("+actionslot 3", ::TestFunction);
-        self thread Binder("+actionslot 1", ::CrateSetup);
-        self thread Binder("+melee", ::NoClipping);
         //self thread NoClipping();
-
         self thread StartPowerups();
         self thread InitAch();
         self thread ZombieCounter();
@@ -121,19 +115,27 @@ Spawning() {
         self thread JumpMonitor();
         self thread Reminders();
         self thread Debugging(1, 125000, 1, 45);
+        self thread Binder("+actionslot 2", ::TestPowerup, "ammo", 0);
+        self thread Binder("+actionslot 3", ::TestFunction);
+        self thread Binder("+actionslot 1", ::CrateSetup);
+        self thread Binder("+melee", ::NoClipping);
+        //self thread HideMyself(GetMech("hide_time"));
+        self SpawnPoints();
+        self SelfVars();
+        self ResetPerks();
         self Overflowing();
-        self thread HideMyself(GetMech("hide_time"));
     } else {
         print("not initializing for " + GetPers("user") + " again");
     }
 }
 
 SelfVars() {
-	// self.stored_weapon_data = undefined;
+	// self.stored_weapon_data = undefined
+    self._mecha = []; 
     self.FirstSpawn = true;
 	name = self.name;
 	self.statusicon = "";
-    self.ignore_lava_damage = GetMech("lava_damage");	
+    self.ignore_lava_damage = GetMech("ignore_lava");	
 	random_color = randomintrange( 1, 5 );
     e = randomize("SHXT;jxx;bogus;BOP;yum;gdk;gd1;bbl;bbc;hola;34;brain;bot;ai;robot;korosu;cell;1c;k2;3arc;iv;kta;jaja;mama;kys;xD;gdk;EBK;GDK;BDK;Crip;Cro;NIGA");
 	color = "^" + random_color;
@@ -152,19 +154,20 @@ Vars() {
     // level._effect["poltergeist"] = loadfx( "misc/fx_zombie_couch_effect" );
 	level.round_think_func = ::round_think;
     level.perk_purchase_limit = GetMech("perk_limit");
+    level.zombie_vars["zombie_spawn_delay"] = GetMech("zombie_delay");
+	level.zombie_vars["zombie_between_round_time"] = GetMech("zombie_round_delay");
+    level.zombie_vars["zombie_powerup_drop_max_per_round"] = GetMech("powerup_drops");
+  	level.claymores_max_per_player = GetMech("claymore_limit");  
+	level.zombie_move_speed = GetMech("zombie_speed");
     level.drop_chance = 3;
 	level.limited_weapons = [];
 	level._limited_equipment = [];
-    level.zombie_vars["zombie_spawn_delay"] = GetMech("zombie_delay");
-	level.zombie_vars["zombie_between_round_time"] = GetMech("zombie_round_delay");
     level.perks_in_box_enabled = true;
 	level.zombie_vars["slipgun_max_kill_round"] = undefined;
 	level.zombie_vars["slipgun_reslip_rate"] = 0;
 	level.zombie_vars[ "zombie_perk_juggernaut_health" ] = 200;
-    level.zombie_vars["zombie_powerup_drop_max_per_round"] = GetMech("powerup_drops");
     level.player_out_of_playable_area_monitor = false;
     level.player_too_many_weapons_monitor = false;
-	level.zombie_move_speed = GetMech("zombie_speed");
     level.chest_moving = 0;
 	level.chest_moves = 0;
 	level.zombie_include_weapons[ "slipgun_zm" ] = 1;
@@ -177,7 +180,6 @@ Vars() {
 	level.zombie_weapons[ "staff_fire_zm" ].is_in_box = 1;
 	level.zombie_weapons[ "staff_lightning_zm" ].is_in_box = 1;
 	level.zombie_weapons[ "staff_water_zm" ].is_in_box = 1;
-  	level.claymores_max_per_player = GetMech("claymore_limit");  
 	primary_weapons = level GetWeaponsListPrimaries();
 
 	NoWalkers();
